@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Underground Fitness — website
 
-## Getting Started
+Landing page for Underground Fitness, an iron gym on Emilio Aguinaldo Highway, Dasmariñas, Cavite.
+Live: https://undergroundfitness.vercel.app
 
-First, run the development server:
+Next.js 16 (App Router), Tailwind CSS v4, motion, a single font (Archivo, variable width).
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev        # http://localhost:3000
+pnpm build      # production build
+node --experimental-strip-types src/lib/manila.test.ts   # opening-hours self-check
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Edit content
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Everything the owner changes lives in **`src/content/site.ts`**: hours, phone, links, rates, zones, review themes.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Rates:** set `price` to a number (e.g. `price: 1500`) and the scoreboard shows `₱1,500`. Leave it `null` and it shows "ASK" plus a "Get today's rate" Messenger button.
+- **Hours:** `hours.open` / `hours.close` are 24h Manila time. `hours.days` uses 0 = Sunday … 6 = Saturday. The "Open now" badge and the "Today" row update automatically.
+- Anything still missing shows a dashed gold **TODO** badge in `pnpm dev` only. Production never shows it.
 
-## Learn More
+## Swap photos
 
-To learn more about Next.js, take a look at the following resources:
+Put new images in `public/photos/` and point to them from `site.ts` (zones) or the section files in `src/components/sections/`.
+The supplied photos carry a "UG" watermark in the bottom ~20%. `components/ui/Photo.tsx` always crops it out by pinning images to the top.
+Photos without a watermark work the same way.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy (Vercel)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Pushing to `main` deploys automatically once the GitHub repo is connected to the Vercel project.
+For a manual deploy: `vercel --prod`. If you add a custom domain, update `url` in `site.ts`, which canonical URLs, the sitemap and JSON-LD all use.
 
-## Deploy on Vercel
+## Still needed from the gym owner
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] Rates: walk-in, monthly, student, coaching (`site.rates`)
+- [ ] Confirm opening days. The poster says 6AM–11PM "normal hours", so the site currently says daily.
+- [ ] Logo as SVG. The site currently uses a type-only wordmark (`components/ui/Wordmark.tsx`).
+- [ ] Real member quotes, with permission (`site.testimonials`)
+- [ ] OK to show the Google rating (4.6 / 46) and to add `aggregateRating` to the JSON-LD
+- [ ] Coach names and photos (optional section, not built yet)
+- [ ] Unwatermarked or higher-resolution photos, and any photos of people training
+- [ ] Custom domain, if any

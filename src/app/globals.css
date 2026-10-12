@@ -1,26 +1,185 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-ink: #0a0a0b;
+  --color-concrete: #131315;
+  --color-steel: #232327;
+  --color-chalk: #eceae4;
+  --color-iron: #9d9da3; /* 7:1 on concrete */
+  --color-gold: #e2b13c; /* the wooden deadlift platforms */
+  --color-led: #ff3b2f; /* the red wall clock */
+  --plate-25: #d6312b;
+  --plate-20: #2f62c9;
+  --plate-15: #e6be2a;
+  --plate-10: #2f9b51;
+
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --ease-plate: cubic-bezier(0.7, 0, 0.15, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* One family, three widths: wide italic echoes the UG wordmark, condensed is the scoreboard. */
+@utility wide {
+  font-stretch: 125%;
+}
+@utility condensed {
+  font-stretch: 62%;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  background: var(--color-ink);
+  color: var(--color-chalk);
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+body {
+  font-family: var(--font-sans);
+  overflow-x: clip;
+}
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+/* Film grain over everything. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* In the components layer so Tailwind utilities (hidden, md:inline-flex, w-full…) can override. */
+@layer components {
+/* Gritty, desaturated grade for gym photos; colour comes back on hover. */
+.grade {
+  filter: grayscale(0.8) contrast(1.15) brightness(1.05);
+  transition: filter 0.6s var(--ease-plate), transform 1.2s var(--ease-plate);
+}
+.group:hover .grade,
+.group:focus-within .grade {
+  filter: grayscale(0) contrast(1.1) brightness(1);
+}
+
+/* Red LED readout. */
+.led {
+  color: var(--color-led);
+  font-stretch: 62%;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 6px rgb(255 59 47 / 0.75), 0 0 18px rgb(255 59 47 / 0.35);
+}
+
+.outline-word {
+  color: transparent;
+  -webkit-text-stroke: 1px rgb(236 234 228 / 0.09);
+  font-stretch: 125%;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 0.8;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Buttons: gold sweeps in from the left; pressed = plate set down. */
+.btn {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.85rem 1.35rem;
+  border: 1px solid currentColor;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  overflow: hidden;
+  transition: color 0.35s var(--ease-plate), transform 0.12s ease-out, border-color 0.35s;
+}
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--color-gold);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s var(--ease-plate);
+}
+.btn:hover,
+.btn:focus-visible {
+  color: var(--color-ink);
+  border-color: var(--color-gold);
+}
+.btn:hover::before,
+.btn:focus-visible::before {
+  transform: scaleX(1);
+}
+.btn:active {
+  transform: translateY(2px) scale(0.985);
+}
+.btn-solid {
+  background: var(--color-chalk);
+  color: var(--color-ink);
+  border-color: var(--color-chalk);
+}
+}
+
+/* Lights-on intro: fluorescent tubes struggling to start. */
+@keyframes flicker {
+  0% { opacity: 0; }
+  8% { opacity: 0.55; }
+  10% { opacity: 0.05; }
+  18% { opacity: 0.7; }
+  20% { opacity: 0.1; }
+  23% { opacity: 0.1; }
+  26% { opacity: 0.85; }
+  28% { opacity: 0.35; }
+  40%, 100% { opacity: 1; }
+}
+.lights-on {
+  animation: flicker 1.8s steps(1, end) 0.25s both;
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.rise {
+  animation: rise 0.7s var(--ease-plate) both;
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+.marquee {
+  animation: marquee 32s linear infinite;
+}
+
+.hazard {
+  background: repeating-linear-gradient(-45deg, var(--color-gold) 0 22px, var(--color-ink) 22px 44px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lights-on,
+  .rise,
+  .marquee {
+    animation: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+dialog::backdrop {
+  background: transparent;
 }
